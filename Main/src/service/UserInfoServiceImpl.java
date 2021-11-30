@@ -1,5 +1,7 @@
 package service;
 
+import java.util.List;
+
 public class UserInfoServiceImpl implements UserInfoService{
 
     //登录
@@ -27,7 +29,23 @@ public class UserInfoServiceImpl implements UserInfoService{
     }
 
     @Override
-    public void register(String username, String password) {
+    public Integer register(String username, String password) {
+        if (isUserExists(username)) {
+            return 0;
+        } else {
+            //存入数据库
+            return 1;
+        }
+    }
+
+    @Override
+    public Boolean isUserExists(String username) {
+        List<String> users = null;
+        if (users.contains(username)){
+            return false;
+        } else {
+            return true;
+        }
 
     }
 
