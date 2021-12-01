@@ -170,14 +170,20 @@ public class Main {
                     System.out.println("【3】.查看我的商品");
                 }
                 System.out.println("【4】.退出");
-
+                List<GameCard> goodsList;
                 switch(n.nextInt()){
                     case 1:
-                        List<GameCard> goodsList;
-
+                        goodsList = jdbcService.getGoodsList();
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.toString());
+                        }
                         break;
                     case 2:
-                        System.out.println("——————当前系统界面暂未开放————————");
+                        System.out.println("——————已购商品清单————————");
+                        goodsList = jdbcService.getGoodsList();
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.toString());
+                        }
                         break;
                     case 3:
                         System.out.println("——————您当前处于购物管理系统界面——————");

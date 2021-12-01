@@ -130,8 +130,7 @@ public class JdbcService {
         return list;
     }
 
-    public List<GameCard> getGoodsList (User user){
-        String userid = user.getUserid();
+    public List<GameCard> getGoodsList (){
         List<GameCard> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
@@ -150,4 +149,25 @@ public class JdbcService {
         }
         return list;
     }
+
+    public List<GameCard> getBoughtGoodsList (User user){
+        List<GameCard> list = new ArrayList();
+        try {
+            String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
+                    " where isdelete = 0 and boughtuserid = '" + user.getUserid() + "'; ";
+
+            rs = execSql(sql);
+            while (rs.next()) {
+                GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                        rs.getInt("price"),rs.getInt("year"),
+                        rs.getString("owneruserid"),rs.getString("boughtuserid"),
+                        rs.getDate("pushdate"),rs.getDate("boughtdate"));
+                list.add(g);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
 }
