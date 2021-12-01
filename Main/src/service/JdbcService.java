@@ -20,6 +20,8 @@ public class JdbcService {
 
     PreparedStatement ps = null;
 
+    Statement st = null;
+
     ResultSet rs = null;
 
     public String getUuid(){
@@ -52,9 +54,14 @@ public class JdbcService {
         return rs;
     }
 
+    private void execSql(String sql, Integer isInsert) throws SQLException {
+        st = dbConn.createStatement();
+        st.execute(sql);
+    }
+
     public String getPsw(String usrName) {
         try{
-            String sql = "select password from [user] where username = " + usrName;
+            String sql = "select password from [user] where username = '" + usrName + "';";
             rs = execSql(sql);
             rs.next();
             return rs.getString(1);
@@ -66,7 +73,7 @@ public class JdbcService {
 
     public User getUser(String usn, String psw){
         try {
-            String sql = "select * from [user] where username = " + usn + " and password = " + psw;
+            String sql = "select * from [user] where username = '" + usn + "' and password = '" + psw + "';";
             rs = execSql(sql);
             rs.next();
             return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4));
@@ -78,13 +85,13 @@ public class JdbcService {
 
     public Boolean isExists(String usn){
         try {
-            String sql = "select * from [user] where username = " + usn;
+            String sql = "select * from [user] where username = '" + usn  + "';";
             rs = execSql(sql);
             rs.next();
             if (rs == null) {
-                return true;
-            } else {
                 return false;
+            } else {
+                return true;
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -95,8 +102,8 @@ public class JdbcService {
     public void register(String username, String password) {
         try {
             String sql = "insert into [user](userid,username,password,usertype) values " +
-                    "(" + getUuid() + "," + username + "," + password + "," + Consts.CONSUMER_TYPE;
-            rs = execSql(sql);
+                    "('" + getUuid() + "','" + username + "','" + password + "'," + Consts.CONSUMER_TYPE + ")";
+            execSql(sql,1);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -106,14 +113,36 @@ public class JdbcService {
         String userid = user.getUserid();
         List<GameCard> list = new ArrayList();
         try {
-            String sql = "select cardid,name,price,year,owneruserid,boughtuserid from [card] " +
-                    "where owneruserid = " + userid + " where isdelete = 0";
+            String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
+                    "where owneruserid = '" + userid + "' and isdelete = 0";
 
             rs = execSql(sql);
             while (rs.next()) {
                 GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
                         rs.getInt("price"),rs.getInt("year"),
-                        rs.getString("owneruserid"),rs.getString("boughtuserid"));
+                        rs.getString("owneruserid"),rs.getString("boughtuserid"),
+                        rs.getDate("pushdate"),rs.getDate("boughtdate"));
+                list.add(g);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<GameCard> getGoodsList (User user){
+        String userid = user.getUserid();
+        List<GameCard> list = new ArrayList();
+        try {
+            String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
+                    " where isdelete = 0 and boughtuserid is not null";
+
+            rs = execSql(sql);
+            while (rs.next()) {
+                GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                        rs.getInt("price"),rs.getInt("year"),
+                        rs.getString("owneruserid"),rs.getString("boughtuserid"),
+                        rs.getDate("pushdate"),rs.getDate("boughtdate"));
                 list.add(g);
             }
         } catch (SQLException throwables) {

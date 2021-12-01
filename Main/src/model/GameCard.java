@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Date;
+
 public class GameCard {
 
     private String cardId;
@@ -14,14 +16,19 @@ public class GameCard {
 
     private String boughtUserId;
 
+    private Date pushdate;
 
-    public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId) {
+    private Date boughtdate;
+
+    public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate) {
         this.cardId = cardId;
         this.name = name;
         this.price = price;
         this.year = year;
         this.ownerUserId = ownerUserId;
         this.boughtUserId = boughtUserId;
+        this.pushdate = pushdate;
+        this.boughtdate = boughtdate;
     }
 
     public String getCardId() {
@@ -73,6 +80,22 @@ public class GameCard {
         this.boughtUserId = boughtUserId;
     }
 
+    public Date getPushdate() {
+        return pushdate;
+    }
+
+    public void setPushdate(Date pushdate) {
+        this.pushdate = pushdate;
+    }
+
+    public Date getBoughtdate() {
+        return boughtdate;
+    }
+
+    public void setBoughtdate(Date boughtdate) {
+        this.boughtdate = boughtdate;
+    }
+
     @Override
     public String toString() {
         return "GameCard{" +
@@ -82,6 +105,8 @@ public class GameCard {
                 ", year=" + year +
                 ", ownerUserId='" + ownerUserId + '\'' +
                 ", boughtUserId='" + boughtUserId + '\'' +
+                ", pushdate=" + pushdate +
+                ", boughtdate=" + boughtdate +
                 '}';
     }
 }

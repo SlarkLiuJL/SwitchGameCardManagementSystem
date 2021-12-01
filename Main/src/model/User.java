@@ -12,7 +12,6 @@ public class User {
 
     private Integer userType;
 
-    private String role;
 
     public User() {
 
@@ -55,9 +54,5 @@ public class User {
 
     public void setUserType(Integer userType) {
         this.userType = userType;
-    }
-
-    public String getRole() {
-        return role;
     }
 }

@@ -1,8 +1,5 @@
 import constcode.Consts;
-import model.ConsumerUser;
-import model.MaintainerUser;
-import model.SellerUser;
-import model.User;
+import model.*;
 import service.JdbcService;
 import service.UserInfoService;
 import service.UserInfoServiceImpl;
@@ -13,6 +10,7 @@ import java.io.IOException;
 import java.lang.Math;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -100,7 +98,9 @@ public class Main {
         String psw = null;
         Integer status = 0;
         User currentUser = null;
-        switch(n.nextInt()){
+        Integer mode = n.nextInt();
+        n.nextLine();
+        switch(mode){
             case 2:
                 while(status == 0) {
                     System.out.println("——————您当前处于注册系统界面——————");
@@ -119,6 +119,7 @@ public class Main {
                             n.close();
                             return;
                         } else{
+                            n.nextLine();
                             continue;
                         }
                     }
@@ -137,6 +138,7 @@ public class Main {
                     if (currentUser == null) {
                         System.out.println("登陆失败，用户名或密码错误");
                     } else {
+                        System.out.println("——————登陆成功——————");
                         status = 1;
                     }
                 }
@@ -151,35 +153,49 @@ public class Main {
         }
 
         JudgeUserRole(currentUser,jdbcService);
+        Integer type = USER.getUserType();
 
-        switch(n.nextInt()){
-            case 1:
-                System.out.println("——————您当前处于系统界面——————");
-                System.out.println("——————您的身份是：" + USER.getRole() + "——————");
-                System.out.println("请在下方输入菜单序号：");
-                System.out.println("【1】.所有客户信息");
-                System.out.println("【2】.增加客户");
-                System.out.println("【3】.修改客户信息");
-                System.out.println("【4】.查询客户信息");
-                n.close();
-                break;
-            case 2:
-                System.out.println("——————当前系统界面暂未开放————————");
-                break;
-            case 3:
-                System.out.println("——————您当前处于购物管理系统界面——————");
-                System.out.println("请在下方输入菜单序号：");
-                System.out.println("【1】.幸运大放送");
-                System.out.println("【2】.幸运抽奖");
-                System.out.println("【3】.生日问候");
-                break;
-            case 4:
-                System.out.println("——————当前系统界面暂未开放————————");
-                break;
-            default:
-                System.out.println("没有此项菜单选项！");
+        System.out.println("——————您当前处于系统界面——————");
+        System.out.println("——————欢迎：" + USER.getUsername() + "——————");
 
+        while(status == 1){
+            //用户操作
+            if (Consts.CONSUMER_TYPE.equals(type) || Consts.SELLER_TYPE.equals(type)) {
+                System.out.println("请在下方输入菜单序号：");
+                System.out.println("【1】.查看商品列表");
+                System.out.println("【2】.查看已购商品");
+                if (Consts.CONSUMER_TYPE.equals(type)) {
+                    System.out.println("【3】.成为卖家");
+                } else if (Consts.SELLER_TYPE.equals(type)) {
+                    System.out.println("【3】.查看我的商品");
+                }
+                System.out.println("【4】.退出");
+
+                switch(n.nextInt()){
+                    case 1:
+                        List<GameCard> goodsList;
+
+                        break;
+                    case 2:
+                        System.out.println("——————当前系统界面暂未开放————————");
+                        break;
+                    case 3:
+                        System.out.println("——————您当前处于购物管理系统界面——————");
+                        System.out.println("请在下方输入菜单序号：");
+                        System.out.println("【1】.幸运大放送");
+                        System.out.println("【2】.幸运抽奖");
+                        System.out.println("【3】.生日问候");
+                        break;
+                    case 4:
+                        System.out.println("——————感谢使用————————");
+                        return;
+                    default:
+                        System.out.println("没有此项菜单选项！");
+                }
+            }
         }
+
+
 
     }
 
