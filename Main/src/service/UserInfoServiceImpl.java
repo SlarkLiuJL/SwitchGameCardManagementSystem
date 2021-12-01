@@ -1,27 +1,28 @@
 package service;
 
+import model.User;
+
 import java.util.List;
 
 public class UserInfoServiceImpl implements UserInfoService{
 
     //登录
     @Override
-    public Boolean Login(String username, String password){
-        String corrcetUsrName = "";
-        String corectPsw = getPsw(username);
-        if ("".equals(corectPsw)) {
-            return true;
+    public User Login(String username, String password, JdbcService jdbcService){
+        String corectPsw = getPsw(username,jdbcService);
+        if ((!"".equals(password)) && corectPsw.equals(password)) {
+            return jdbcService.getUser(username,password);
         } else{
-            return false;
+            return null;
         }
     }
 
     //获取密码
     @Override
-    public String getPsw(String username){
+    public String getPsw(String username, JdbcService jdbcService){
 
         if (username != null && (!"".equals(username))){
-            String psw = "";
+            String psw = jdbcService.getPsw(username);
             return psw;
         } else{
             return "";
@@ -29,24 +30,19 @@ public class UserInfoServiceImpl implements UserInfoService{
     }
 
     @Override
-    public Integer register(String username, String password) {
-        if (isUserExists(username)) {
+    public Integer register(String username, String password, JdbcService jdbcService) {
+        if (isUserExists(username,jdbcService)) {
             return 0;
         } else {
             //存入数据库
+            jdbcService.register(username,password);
             return 1;
         }
     }
 
     @Override
-    public Boolean isUserExists(String username) {
-        List<String> users = null;
-        if (users.contains(username)){
-            return false;
-        } else {
-            return true;
-        }
-
+    public Boolean isUserExists(String username, JdbcService jdbcService) {
+        return jdbcService.isExists(username);
     }
 
 }

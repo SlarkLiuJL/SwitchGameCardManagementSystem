@@ -1,5 +1,7 @@
 package model;
 
+import constcode.Consts;
+
 public class User {
 
     private String username;
@@ -9,6 +11,12 @@ public class User {
     private String userid;
 
     private Integer userType;
+
+    private String role;
+
+    public User() {
+
+    }
 
     public User(String username, String password, String userid, Integer userType) {
         this.username = username;
@@ -47,5 +55,9 @@ public class User {
 
     public void setUserType(Integer userType) {
         this.userType = userType;
+    }
+
+    public String getRole() {
+        return role;
     }
 }

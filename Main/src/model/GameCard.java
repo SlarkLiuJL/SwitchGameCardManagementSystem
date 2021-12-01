@@ -14,6 +14,7 @@ public class GameCard {
 
     private String boughtUserId;
 
+
     public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId) {
         this.cardId = cardId;
         this.name = name;
@@ -70,5 +71,17 @@ public class GameCard {
 
     public void setBoughtUserId(String boughtUserId) {
         this.boughtUserId = boughtUserId;
+    }
+
+    @Override
+    public String toString() {
+        return "GameCard{" +
+                "cardId='" + cardId + '\'' +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", year=" + year +
+                ", ownerUserId='" + ownerUserId + '\'' +
+                ", boughtUserId='" + boughtUserId + '\'' +
+                '}';
     }
 }
