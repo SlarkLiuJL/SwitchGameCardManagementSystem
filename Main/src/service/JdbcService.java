@@ -1,20 +1,25 @@
 package service;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import constcode.Consts;
 import model.GameCard;
 import model.User;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Date;
 
 public class JdbcService {
 
-    private String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    private String dbUrl = "jdbc:sqlserver://localhost:1433;DatabaseName=model";
-    private String userName = "sa";
-    private String userPwd = "123456";
+    private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    private final String dbUrl = "jdbc:sqlserver://localhost:1433;DatabaseName=model";
+    private final String userName = "sa";
+    private final String userPwd = "123456";
+
+    private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
 
     Connection dbConn;
 
@@ -66,17 +71,37 @@ public class JdbcService {
             rs.next();
             return rs.getString(1);
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            //throwables.printStackTrace();
             return "";
         }
     }
+
+    public Boolean isGoodExists(String goodid){
+        try {
+            String sql = "select * from [card] where cardid = '" + goodid + "';";
+            rs = execSql(sql);
+            rs.next();
+            if (rs != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+    }
+
 
     public User getUser(String usn, String psw){
         try {
             String sql = "select * from [user] where username = '" + usn + "' and password = '" + psw + "';";
             rs = execSql(sql);
             rs.next();
-            return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getInt(4));
+            if (rs.getInt(5) == 1) {
+                return new User();
+            }
+            return new User(rs.getString(2),rs.getString(3),rs.getString(1),rs.getInt(4));
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return null;
@@ -114,7 +139,7 @@ public class JdbcService {
         List<GameCard> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
-                    "where owneruserid = '" + userid + "' and isdelete = 0";
+                    "where owneruserid = '" + userid + "' and isdelete = 0 and boughtuserid is null";
 
             rs = execSql(sql);
             while (rs.next()) {
@@ -134,7 +159,7 @@ public class JdbcService {
         List<GameCard> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
-                    " where isdelete = 0 and boughtuserid is not null";
+                    " where isdelete = 0 and boughtuserid is null";
 
             rs = execSql(sql);
             while (rs.next()) {
@@ -170,4 +195,82 @@ public class JdbcService {
         return list;
     }
 
+    public Boolean buyGoods(User user, String goodid) {
+        Date d = new Date();
+        try {
+            if (isGoodExists(goodid)) {
+                String sql = "update [card] set boughtuserid = '" + user.getUserid() + "' , boughtdate = '" + df.format(d) +
+                        "' where cardid = '" + goodid + "'; ";
+
+                execSql(sql,1);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Boolean becomeSeller(User user) {
+
+        try {
+            String sql = "update [user] set usertype = 2" +
+                    " where userid = '" + user.getUserid() + "'; ";
+            execSql(sql,1);
+            user.setUserType(2);
+            return true;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
+
+    public Boolean addGoods(User user, String name, Integer price) {
+        try {
+            String sql = "insert into card(cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate) " +
+                    "values ('" + getUuid() + "','" + name + "'," + price + ",2021,'" + user.getUserid() + "',null," +
+                    "CONVERT(varchar(10),GETDATE(),120),null)";
+            execSql(sql,1);
+            return true;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
+
+    public Boolean changePrice(User user,String goodid, Integer price) {
+        try {
+            if (isGoodExists(goodid)) {
+                String sql = "update [card] set price = " + price +
+                        " where cardid = '" + goodid + "' and owneruserid = '" + user.getUserid() + "'; ";
+                execSql(sql,1);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
+
+    public Boolean deleteGood(User user, String goodid) {
+        try {
+            if (isGoodExists(goodid)) {
+                String sql = "update [card] set isdelete = 1 where cardid = '" + goodid + "' and owneruserid = '" + user.getUserid() + "'; ";
+                execSql(sql,1);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
 }
