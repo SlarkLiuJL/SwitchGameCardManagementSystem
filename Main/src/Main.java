@@ -222,6 +222,11 @@ public class Main {
                     default:
                         System.out.println("没有此项菜单选项！");
                 }
+            } else {
+                System.out.println("请在下方输入操作序号：");
+                System.out.println("【1】.查看用户列表");
+                System.out.println("【2】.查看商品列表");
+                System.out.println("【0】.退出");
             }
         }
 

@@ -2,6 +2,8 @@ package model;
 
 import service.JdbcService;
 
+import java.util.List;
+
 public class MaintainerUser extends User {
 
     private JdbcService jdbcService;
@@ -29,9 +31,22 @@ public class MaintainerUser extends User {
         super(username, password, userid, userType);
     }
 
-    public boolean deleteGameCard(GameCard gameCard){
-        String id = gameCard.getCardId();
+    //仅有管理员有此权限
+    public List<GameCard> showAllGameCard() {
+        List<GameCard> list = null;
+        String sql = "";
+
+        return list;
+    }
+
+    public boolean deleteGameCard(String id){
         //下架卡带
+
+        return true;
+    }
+
+    public boolean deleteUser(String id){
+        //删除用户
 
         return true;
     }
