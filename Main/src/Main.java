@@ -9,10 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.Math;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Main {
@@ -20,6 +17,8 @@ public class Main {
     private static User USER = null;
 
     public static UserInfoService userInfoService = new UserInfoServiceImpl();
+
+    public static Map<Integer,String> StatusMap = new HashMap<>();
 
     public static void JudgeUserRole(User user, JdbcService jdbcService){
         if (Consts.CONSUMER_TYPE.equals(user.getUserType())){
@@ -32,10 +31,12 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
+        //初始化
         JdbcService jdbcService = new JdbcService();
-
+        StatusMap.put(0,"正常");
+        StatusMap.put(1,"已下架");
+        StatusMap.put(2,"已冻结");
         //商品清单
-
 
         Scanner n=new Scanner(System.in);
         System.out.println("——————欢迎进入购物管理系统——————");
@@ -88,7 +89,9 @@ public class Main {
                     if (currentUser == null) {
                         System.out.println("登陆失败，用户名或密码错误");
                     } else if (currentUser.getUserid() == null){
-                        System.out.println("登陆失败，用户已被删除，请联系管理员");
+                        System.out.println("登陆失败，用户不存在，请联系管理员");
+                    } else if (currentUser.getIsdelete() != 0){
+                        System.out.println("登陆失败，用户已被冻结，请联系管理员");
                     } else {
                         System.out.println("——————登陆成功——————");
                         status = 1;
@@ -227,6 +230,33 @@ public class Main {
                 System.out.println("【1】.查看用户列表");
                 System.out.println("【2】.查看商品列表");
                 System.out.println("【0】.退出");
+
+                switch(n.nextInt()){
+                    case 1:
+                        List<GameCard> goodsList;
+                        status = 1;
+
+                        System.out.println("——————商品清单————————");
+                        goodsList = jdbcService.showAllGoodsForMaintainer(USER);
+                        System.out.println("编号        名称        价格        上架日期          状态");
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.getCardId() + "        " + g.getName() + "        " +
+                                    g.getPrice() + "        " + g.getPushdate() + "          " + StatusMap.get(g.getIsdelete()));
+                        }
+                        break;
+                    case 2:
+                        System.out.println("——————用户列表————————");
+                        break;
+                    case 0:
+                        System.out.println("感谢您的使用！");
+                        n.close();
+                        break;
+                    default:
+                        System.out.println("没有此项菜单选项！");
+                        n.close();
+                }
+
+
             }
         }
 

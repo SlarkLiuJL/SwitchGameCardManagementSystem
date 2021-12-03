@@ -2,6 +2,7 @@ package model;
 
 import service.JdbcService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class MaintainerUser extends User {
@@ -9,6 +10,7 @@ public class MaintainerUser extends User {
     private JdbcService jdbcService;
 
     private String role = "管理员";
+
 
     public MaintainerUser(String username, String password, String userid, Integer userType, JdbcService jdbcService) {
         super(username, password, userid, userType);
@@ -31,24 +33,29 @@ public class MaintainerUser extends User {
         super(username, password, userid, userType);
     }
 
-    //仅有管理员有此权限
-    public List<GameCard> showAllGameCard() {
-        List<GameCard> list = null;
-        String sql = "";
 
-        return list;
+    public String deleteGoods(String id){
+        //下架商品
+        String sql = "update [card] set isdelete = 1 where cardid = '" + id + "'";
+        try {
+            jdbcService.execSql(sql,1);
+            return "已强制下架";
+        } catch (SQLException throwables) {
+//            throwables.printStackTrace();
+            return "强制下架失败";
+        }
     }
 
-    public boolean deleteGameCard(String id){
-        //下架卡带
-
-        return true;
-    }
-
-    public boolean deleteUser(String id){
+    public String deleteUser(String id){
         //删除用户
-
-        return true;
+        String sql = "update [user] set isdelete = 2 where userid = '" + id + "'";
+        try {
+            jdbcService.execSql(sql,1);
+            return "已冻结账号";
+        } catch (SQLException throwables) {
+//            throwables.printStackTrace();
+            return "账号冻结失败";
+        }
     }
 
 }

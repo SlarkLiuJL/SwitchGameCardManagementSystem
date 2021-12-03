@@ -12,6 +12,7 @@ public class User {
 
     private Integer userType;
 
+    private Integer isdelete;
 
     public User() {
 
@@ -22,6 +23,18 @@ public class User {
         this.password = password;
         this.userid = userid;
         this.userType = userType;
+    }
+
+    public User(String username, String password, String userid, Integer userType,Integer isdelete) {
+        this.username = username;
+        this.password = password;
+        this.userid = userid;
+        this.userType = userType;
+        this.isdelete = isdelete;
+    }
+
+    public Integer getIsdelete() {
+        return isdelete;
     }
 
     public String getUsername() {

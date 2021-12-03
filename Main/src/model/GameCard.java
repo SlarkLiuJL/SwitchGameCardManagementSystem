@@ -20,6 +20,8 @@ public class GameCard {
 
     private Date boughtdate;
 
+    private Integer isdelete;
+
     public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate) {
         this.cardId = cardId;
         this.name = name;
@@ -29,6 +31,22 @@ public class GameCard {
         this.boughtUserId = boughtUserId;
         this.pushdate = pushdate;
         this.boughtdate = boughtdate;
+    }
+
+    public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate, Integer isdelete) {
+        this.cardId = cardId;
+        this.name = name;
+        this.price = price;
+        this.year = year;
+        this.ownerUserId = ownerUserId;
+        this.boughtUserId = boughtUserId;
+        this.pushdate = pushdate;
+        this.boughtdate = boughtdate;
+        this.isdelete = isdelete;
+    }
+
+    public Integer getIsdelete() {
+        return isdelete;
     }
 
     public String getCardId() {

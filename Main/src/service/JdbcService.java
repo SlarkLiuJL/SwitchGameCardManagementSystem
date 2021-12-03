@@ -53,13 +53,13 @@ public class JdbcService {
         super.finalize();
     }
 
-    private ResultSet execSql(String sql) throws SQLException {
+    public ResultSet execSql(String sql) throws SQLException {
         ps = dbConn.prepareStatement(sql);
         rs = ps.executeQuery();
         return rs;
     }
 
-    private void execSql(String sql, Integer isInsert) throws SQLException {
+    public void execSql(String sql, Integer isInsert) throws SQLException {
         st = dbConn.createStatement();
         st.execute(sql);
     }
@@ -101,7 +101,7 @@ public class JdbcService {
             if (rs.getInt(5) == 1) {
                 return new User();
             }
-            return new User(rs.getString(2),rs.getString(3),rs.getString(1),rs.getInt(4));
+            return new User(rs.getString(2),rs.getString(3),rs.getString(1),rs.getInt(4),rs.getInt(5));
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return null;
@@ -271,6 +271,51 @@ public class JdbcService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
+        }
+    }
+
+    public List<GameCard> showAllGoodsForMaintainer(User user) {
+        List<GameCard> list = new ArrayList<>();
+        try {
+            //非管理员禁止使用
+            if (Consts.MAINTAINER_TYPE.equals(user.getUserType())) {
+                String sql = "select * from [card]; ";
+                rs = execSql(sql);
+                while (rs.next()) {
+                    GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                            rs.getInt("price"),rs.getInt("year"),
+                            rs.getString("owneruserid"),rs.getString("boughtuserid"),
+                            rs.getDate("pushdate"),rs.getDate("boughtdate"),rs.getInt("isdelete"));
+                    list.add(g);
+                }
+                return list;
+            } else {
+                return null;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return list;
+        }
+    }
+
+    public List<User> getAllUsersForMaintainer(User user) {
+        List<User> list = new ArrayList<>();
+        try {
+            //非管理员禁止使用
+            if (Consts.MAINTAINER_TYPE.equals(user.getUserType())) {
+                String sql = "select * from [user];";
+                rs = execSql(sql);
+                while (rs.next()) {
+                    list.add(new User(rs.getString(2),rs.getString(3),
+                            rs.getString(1),rs.getInt(4),rs.getInt(5)));
+                }
+                return list;
+            } else {
+                return null;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return list;
         }
     }
 
