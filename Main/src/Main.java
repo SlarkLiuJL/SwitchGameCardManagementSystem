@@ -4,6 +4,7 @@ import service.JdbcService;
 import service.UserInfoService;
 import service.UserInfoServiceImpl;
 
+import javax.management.relation.Role;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,21 +15,20 @@ import java.util.*;
 
 public class Main {
 
-    private static User USER = null;
 
     public static UserInfoService userInfoService = new UserInfoServiceImpl();
 
+    //删除状态映射
     public static Map<Integer,String> StatusMap = new HashMap<>();
+    //用户角色映射
+    public static Map<Integer,String> RoleMap = new HashMap<>();
 
-    public static void JudgeUserRole(User user, JdbcService jdbcService){
-        if (Consts.CONSUMER_TYPE.equals(user.getUserType())){
-            USER = new ConsumerUser(user);
-        } else if (Consts.SELLER_TYPE.equals(user.getUserType())) {
-            USER = new SellerUser(user,jdbcService);
-        } else if (Consts.MAINTAINER_TYPE.equals(user.getUserType())) {
-            USER = new MaintainerUser(user,jdbcService);
-        }
-    }
+    private static ConsumerUser consumerUser;
+
+    private static SellerUser sellerUser;
+
+    private  static MaintainerUser maintainerUser;
+
 
     public static void main(String[] args) throws IOException {
         //初始化
@@ -96,6 +96,8 @@ public class Main {
                         System.out.println("——————登陆成功——————");
                         status = 1;
                     }
+
+
                 }
                 break;
             case 3:
@@ -107,24 +109,70 @@ public class Main {
                 n.close();
         }
 
-        JudgeUserRole(currentUser,jdbcService);
-        Integer type = USER.getUserType();
+
 
         System.out.println("——————您当前处于系统界面——————");
-        System.out.println("——————欢迎：" + USER.getUsername() + "——————");
+        System.out.println("——————欢迎：" + currentUser.getUsername() + "——————");
 
         while(status == 1){
             //用户操作
-            if (Consts.CONSUMER_TYPE.equals(type) || Consts.SELLER_TYPE.equals(type)) {
+            if (Consts.CONSUMER_TYPE.equals(currentUser)) {
                 System.out.println("请在下方输入菜单序号：");
                 System.out.println("【1】.查看商品列表");
                 System.out.println("【2】.查看已购商品");
-                if (Consts.CONSUMER_TYPE.equals(type)) {
-                    System.out.println("【3】.成为卖家");
-                } else if (Consts.SELLER_TYPE.equals(type)) {
-                    System.out.println("【3】.查看我的商品");
-                    System.out.println("【4】.商品上架");
+                System.out.println("【3】.成为卖家");
+                System.out.println("【0】.退出");
+                List<GameCard> goodsList;
+
+                switch(n.nextInt()){
+                    case 1:
+                        n.nextLine();
+                        goodsList = jdbcService.getGoodsList();
+                        System.out.println("编号        名称        价格        上架日期");
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.getCardId() + "        " + g.getName() + "        " +
+                                    g.getPrice() + "        " + g.getPushdate());
+                        }
+                        System.out.println("----------请选择要购买的产品id,输入回车退出----------");
+                        String goodid = n.nextLine();
+                        if (goodid == null || "".equals(goodid)){
+                            break;
+                        } else {
+                            //将物品id添加到用户名下，更新boughtid和boughttime
+                            if (jdbcService.buyGoods(consumerUser,goodid)){
+                                System.out.println("----------购买成功----------");
+                            } else {
+                                System.out.println("----------购买失败，请重新操作----------");
+                            }
+                            break;
+                        }
+                    case 2:
+                        System.out.println("——————已购商品清单————————");
+                        goodsList = jdbcService.getBoughtGoodsList(consumerUser);
+                        System.out.println("编号        名称        价格        上架日期");
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.getCardId() + "        " + g.getName() + "        " +
+                                    g.getPrice() + "        " + g.getPushdate());
+                        }
+                        break;
+                    case 3:
+                            jdbcService.becomeSeller(consumerUser);
+                            System.out.println("成功");
+                            currentUser = consumerUser;
+                        break;
+                    case 0:
+                        System.out.println("——————感谢使用————————");
+                        return;
+                    default:
+                        System.out.println("没有此项菜单选项！");
                 }
+
+            } else if (Consts.SELLER_TYPE.equals(currentUser.getUserType())){
+                System.out.println("请在下方输入菜单序号：");
+                System.out.println("【1】.查看商品列表");
+                System.out.println("【2】.查看已购商品");
+                System.out.println("【3】.查看我的商品");
+                System.out.println("【4】.商品上架");
                 System.out.println("【0】.退出");
                 List<GameCard> goodsList;
                 switch(n.nextInt()){
@@ -142,7 +190,7 @@ public class Main {
                             break;
                         } else {
                             //将物品id添加到用户名下，更新boughtid和boughttime
-                            if (jdbcService.buyGoods(USER,goodid)){
+                            if (jdbcService.buyGoods(sellerUser,goodid)){
                                 System.out.println("----------购买成功----------");
                             } else {
                                 System.out.println("----------购买失败，请重新操作----------");
@@ -151,7 +199,7 @@ public class Main {
                         }
                     case 2:
                         System.out.println("——————已购商品清单————————");
-                        goodsList = jdbcService.getBoughtGoodsList(USER);
+                        goodsList = jdbcService.getBoughtGoodsList(sellerUser);
                         System.out.println("编号        名称        价格        上架日期");
                         for (GameCard g : goodsList) {
                             System.out.println(g.getCardId() + "        " + g.getName() + "        " +
@@ -159,47 +207,42 @@ public class Main {
                         }
                         break;
                     case 3:
-                        if (Consts.CONSUMER_TYPE.equals(type)) {
-                            jdbcService.becomeSeller(USER);
-                            System.out.println("成功");
-
-                        } else if (Consts.SELLER_TYPE.equals(type)) {
-                            System.out.println("——————我的商品清单————————");
-                            goodsList = jdbcService.getMyGoodsList(USER);
-                            System.out.println("编号        名称        价格        上架日期");
-                            for (GameCard g : goodsList) {
-                                System.out.println(g.getCardId() + "        " + g.getName() + "        " +
-                                        g.getPrice() + "        " + g.getPushdate());
-                            }
-                            Integer num = 1;
-                            while (num != 0) {
-                                System.out.println("请在下方输入操作序号：");
-                                System.out.println("【1】.修改商品价格");
-                                System.out.println("【2】.下架商品");
-                                System.out.println("【0】.退出");
-                                num = n.nextInt();
-                                if (num == 1) {
-                                    n.nextLine();
-                                    System.out.println("请在下方输入商品编号：");
-                                    goodid = n.nextLine();
-                                    System.out.println("请在下方输入修改后的价格：");
-                                    Integer price = n.nextInt();
-                                    if (jdbcService.changePrice(USER, goodid,price)) {
-                                        System.out.println("修改成功");
-                                    } else {
-                                        System.out.println("修改失败");
-                                    }
-                                } else if (num == 2) {
-                                    n.nextLine();
-                                    System.out.println("请在下方输入要下架的商品编号：");
-                                    goodid = n.nextLine();
-                                    if (jdbcService.deleteGood(USER, goodid)) {
-                                        System.out.println("下架成功");
-                                    } else {
-                                        System.out.println("下架失败");
-                                    }
+                        System.out.println("——————我的商品清单————————");
+                        goodsList = jdbcService.getMyGoodsList(sellerUser);
+                        System.out.println("编号        名称        价格        上架日期");
+                        for (GameCard g : goodsList) {
+                            System.out.println(g.getCardId() + "        " + g.getName() + "        " +
+                                    g.getPrice() + "        " + g.getPushdate());
+                        }
+                        Integer num = 1;
+                        while (num != 0) {
+                            System.out.println("请在下方输入操作序号：");
+                            System.out.println("【1】.修改商品价格");
+                            System.out.println("【2】.下架商品");
+                            System.out.println("【0】.退出");
+                            num = n.nextInt();
+                            if (num == 1) {
+                                n.nextLine();
+                                System.out.println("请在下方输入商品编号：");
+                                goodid = n.nextLine();
+                                System.out.println("请在下方输入修改后的价格：");
+                                Integer price = n.nextInt();
+                                if (jdbcService.changePrice(sellerUser, goodid,price)) {
+                                    System.out.println("修改成功");
+                                } else {
+                                    System.out.println("修改失败");
+                                }
+                            } else if (num == 2) {
+                                n.nextLine();
+                                System.out.println("请在下方输入要下架的商品编号：");
+                                goodid = n.nextLine();
+                                if (jdbcService.deleteGood(sellerUser, goodid)) {
+                                    System.out.println("下架成功");
+                                } else {
+                                    System.out.println("下架失败");
                                 }
                             }
+
 
 
                         }
@@ -214,7 +257,7 @@ public class Main {
                             System.out.println("请输入价格");
                             Integer storeprice = n.nextInt();
                             n.nextLine();
-                            jdbcService.addGoods(USER,storename,storeprice);
+                            jdbcService.addGoods(sellerUser,storename,storeprice);
                             System.out.println("输入其他继续上架，输入0退出");
                             flag = n.nextLine();
                         }
@@ -235,17 +278,37 @@ public class Main {
                     case 1:
                         List<GameCard> goodsList;
                         status = 1;
-
-                        System.out.println("——————商品清单————————");
-                        goodsList = jdbcService.showAllGoodsForMaintainer(USER);
-                        System.out.println("编号        名称        价格        上架日期          状态");
-                        for (GameCard g : goodsList) {
-                            System.out.println(g.getCardId() + "        " + g.getName() + "        " +
-                                    g.getPrice() + "        " + g.getPushdate() + "          " + StatusMap.get(g.getIsdelete()));
+                        while (status == 1) {
+                            System.out.println("——————商品清单————————");
+                            goodsList = jdbcService.showAllGoodsForMaintainer(maintainerUser);
+                            System.out.println("编号        名称        价格        上架日期          状态");
+                            for (GameCard g : goodsList) {
+                                System.out.println(g.getCardId() + "        " + g.getName() + "        " +
+                                        g.getPrice() + "        " + g.getPushdate() + "          " + StatusMap.get(g.getIsdelete()));
+                            }
+                            n.nextLine();
+                            System.out.println("请在下方输入操作序号：");
+                            System.out.println("【1】.强制下架商品");
+                            System.out.println("【0】.返回");
+                            status = n.nextInt();
+                            if (status == 1) {
+                                System.out.println("请在下方输入要下架的商品编号：");
+                                String goodid = n.nextLine();
+                                System.out.println(maintainerUser.deleteGoods(goodid));
+                            }
                         }
                         break;
                     case 2:
-                        System.out.println("——————用户列表————————");
+                        while (status == 1) {
+                            status = 1;
+                            List<User> userList = jdbcService.getAllUsersForMaintainer(maintainerUser);
+                            System.out.println("——————用户列表————————");
+                            System.out.println("编号        用户名        用户角色          状态");
+                            for (User g : userList) {
+                                System.out.println(g.getUserid() + "        " + g.getUsername() + "        " +
+                                        RoleMap.get(g.getUserType()) + "        "  + StatusMap.get(g.getIsdelete()));
+                            }
+                        }
                         break;
                     case 0:
                         System.out.println("感谢您的使用！");
