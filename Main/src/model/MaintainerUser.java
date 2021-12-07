@@ -34,24 +34,33 @@ public class MaintainerUser extends User {
     }
 
 
-    public String deleteGoods(String id){
+    public String deleteGoods(String id, Integer stat){
         //下架商品
-        String sql = "update [card] set isdelete = 1 where cardid = '" + id + "'";
+        String sql = "update [card] set isdelete = " + stat + " where cardid = '" + id + "'";
         try {
             jdbcService.execSql(sql,1);
-            return "已强制下架";
+            if (stat == 1) {
+                return "已强制下架";
+            } else {
+                return "已恢复";
+            }
+
         } catch (SQLException throwables) {
 //            throwables.printStackTrace();
-            return "强制下架失败";
+            return "操作失败";
         }
     }
 
-    public String deleteUser(String id){
+    public String deleteUser(String id, Integer stat){
         //删除用户
-        String sql = "update [user] set isdelete = 2 where userid = '" + id + "'";
+        String sql = "update [user] set isdelete = " + stat + " where userid = '" + id + "'";
         try {
             jdbcService.execSql(sql,1);
-            return "已冻结账号";
+            if (stat == 2) {
+                return "已冻结账号";
+            } else {
+                return "已恢复";
+            }
         } catch (SQLException throwables) {
 //            throwables.printStackTrace();
             return "账号冻结失败";

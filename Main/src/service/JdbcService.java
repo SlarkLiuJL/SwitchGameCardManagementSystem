@@ -1,8 +1,6 @@
 package service;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import constcode.Consts;
-import model.GameCard;
+import model.GoodInfo;
 import model.User;
 
 import java.sql.*;
@@ -134,16 +132,16 @@ public class JdbcService {
         }
     }
 
-    public List<GameCard> getMyGoodsList(User user) {
+    public List<GoodInfo> getMyGoodsList(User user) {
         String userid = user.getUserid();
-        List<GameCard> list = new ArrayList();
+        List<GoodInfo> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
                     "where owneruserid = '" + userid + "' and isdelete = 0 and boughtuserid is null";
 
             rs = execSql(sql);
             while (rs.next()) {
-                GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                GoodInfo g = new GoodInfo(rs.getString("cardid"),rs.getString("name"),
                         rs.getInt("price"),rs.getInt("year"),
                         rs.getString("owneruserid"),rs.getString("boughtuserid"),
                         rs.getDate("pushdate"),rs.getDate("boughtdate"));
@@ -155,15 +153,15 @@ public class JdbcService {
         return list;
     }
 
-    public List<GameCard> getGoodsList (){
-        List<GameCard> list = new ArrayList();
+    public List<GoodInfo> getGoodsList (){
+        List<GoodInfo> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
                     " where isdelete = 0 and boughtuserid is null";
 
             rs = execSql(sql);
             while (rs.next()) {
-                GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                GoodInfo g = new GoodInfo(rs.getString("cardid"),rs.getString("name"),
                         rs.getInt("price"),rs.getInt("year"),
                         rs.getString("owneruserid"),rs.getString("boughtuserid"),
                         rs.getDate("pushdate"),rs.getDate("boughtdate"));
@@ -175,15 +173,15 @@ public class JdbcService {
         return list;
     }
 
-    public List<GameCard> getBoughtGoodsList (User user){
-        List<GameCard> list = new ArrayList();
+    public List<GoodInfo> getBoughtGoodsList (User user){
+        List<GoodInfo> list = new ArrayList();
         try {
             String sql = "select cardid,name,price,year,owneruserid,boughtuserid,pushdate,boughtdate from [card] " +
                     " where isdelete = 0 and boughtuserid = '" + user.getUserid() + "'; ";
 
             rs = execSql(sql);
             while (rs.next()) {
-                GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                GoodInfo g = new GoodInfo(rs.getString("cardid"),rs.getString("name"),
                         rs.getInt("price"),rs.getInt("year"),
                         rs.getString("owneruserid"),rs.getString("boughtuserid"),
                         rs.getDate("pushdate"),rs.getDate("boughtdate"));
@@ -274,15 +272,15 @@ public class JdbcService {
         }
     }
 
-    public List<GameCard> showAllGoodsForMaintainer(User user) {
-        List<GameCard> list = new ArrayList<>();
+    public List<GoodInfo> showAllGoodsForMaintainer(User user) {
+        List<GoodInfo> list = new ArrayList<>();
         try {
             //非管理员禁止使用
             if (Consts.MAINTAINER_TYPE.equals(user.getUserType())) {
                 String sql = "select * from [card]; ";
                 rs = execSql(sql);
                 while (rs.next()) {
-                    GameCard g = new GameCard(rs.getString("cardid"),rs.getString("name"),
+                    GoodInfo g = new GoodInfo(rs.getString("cardid"),rs.getString("name"),
                             rs.getInt("price"),rs.getInt("year"),
                             rs.getString("owneruserid"),rs.getString("boughtuserid"),
                             rs.getDate("pushdate"),rs.getDate("boughtdate"),rs.getInt("isdelete"));
@@ -303,7 +301,7 @@ public class JdbcService {
         try {
             //非管理员禁止使用
             if (Consts.MAINTAINER_TYPE.equals(user.getUserType())) {
-                String sql = "select * from [user];";
+                String sql = "select * from [user] where userid <> '" + user.getUserid() +"';";
                 rs = execSql(sql);
                 while (rs.next()) {
                     list.add(new User(rs.getString(2),rs.getString(3),

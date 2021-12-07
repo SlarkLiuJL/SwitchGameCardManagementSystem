@@ -2,7 +2,7 @@ package model;
 
 import java.util.Date;
 
-public class GameCard {
+public class GoodInfo {
 
     private String cardId;
 
@@ -22,7 +22,7 @@ public class GameCard {
 
     private Integer isdelete;
 
-    public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate) {
+    public GoodInfo(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate) {
         this.cardId = cardId;
         this.name = name;
         this.price = price;
@@ -33,7 +33,7 @@ public class GameCard {
         this.boughtdate = boughtdate;
     }
 
-    public GameCard(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate, Integer isdelete) {
+    public GoodInfo(String cardId, String name, Integer price, Integer year, String ownerUserId, String boughtUserId, Date pushdate, Date boughtdate, Integer isdelete) {
         this.cardId = cardId;
         this.name = name;
         this.price = price;

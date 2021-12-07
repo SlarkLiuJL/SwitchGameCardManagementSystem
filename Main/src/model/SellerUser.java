@@ -10,14 +10,13 @@ public class SellerUser extends User{
 
     private JdbcService jdbcService;
 
-    private List<GameCard> myGoodsList = null;
+    private List<GoodInfo> myGoodsList = null;
 
-    public SellerUser(User user, JdbcService jdbcService) {
+    public SellerUser(User user) {
         super.setUsername(user.getUsername());
         super.setUserid(user.getUserid());
         super.setPassword(user.getPassword());
         super.setUserType(user.getUserType());
-        this.jdbcService = jdbcService;
     }
 
 }
