@@ -1,7 +1,5 @@
 package model;
 
-import constcode.Consts;
-
 public class User {
 
     private String username;
@@ -13,6 +11,10 @@ public class User {
     private Integer userType;
 
     private Integer isdelete;
+
+    public String getRole() {
+        return "用户";
+    }
 
     public User() {
 

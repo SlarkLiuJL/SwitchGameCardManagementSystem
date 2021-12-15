@@ -19,4 +19,9 @@ public class ConsumerUser extends User {
         super.setUserType(user.getUserType());
     }
 
+    @Override
+    public String getRole() {
+        return this.role;
+    }
+
 }

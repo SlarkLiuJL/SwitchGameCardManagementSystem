@@ -5,6 +5,9 @@ import service.UserInfoService;
 import service.UserInfoServiceImpl;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 
@@ -25,16 +28,30 @@ public class Main {
     private  static MaintainerUser maintainerUser;
 
 
+
     public static void main(String[] args) throws IOException {
         //初始化
         JdbcService jdbcService = new JdbcService();
         StatusMap.put(0,"正常");
         StatusMap.put(1,"已下架");
         StatusMap.put(2,"已冻结");
-        //商品清单
 
+        RoleMap.put(1,"买家");
+        RoleMap.put(2,"卖家");
+        RoleMap.put(3,"管理员");
+
+        NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+        DecimalFormat numberDecimalFormat;
+        try {
+            numberDecimalFormat = (DecimalFormat) numberFormat;
+            numberDecimalFormat.applyPattern("#");
+        } catch (Exception e) {
+
+        }
+
+        //商品清单
         Scanner n=new Scanner(System.in);
-        System.out.println("——————欢迎进入购物管理系统——————");
+        System.out.println("——————欢迎进入火锅商品管理系统——————");
         System.out.println("请在下方输入菜单序号：");
         System.out.println("【1】.登录系统");
         System.out.println("【2】.注册");
@@ -42,9 +59,9 @@ public class Main {
         System.out.println("请输入菜单选项：");
         String usrname = null;
         String psw = null;
-        Integer status = 0;
+        int status = 0;
         User currentUser = null;
-        Integer mode = n.nextInt();
+        int mode = n.nextInt();
         n.nextLine();
         switch(mode){
             case 2:
@@ -111,7 +128,7 @@ public class Main {
 
         while(status == 1){
             //用户操作
-            if (Consts.CONSUMER_TYPE.equals(currentUser)) {
+            if (Consts.CONSUMER_TYPE.equals(currentUser.getUserType())) {
                 consumerUser = new ConsumerUser(currentUser);
                 System.out.println("请在下方输入菜单序号：");
                 System.out.println("【1】.查看商品列表");

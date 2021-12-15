@@ -12,6 +12,11 @@ public class SellerUser extends User{
 
     private List<GoodInfo> myGoodsList = null;
 
+    @Override
+    public String getRole() {
+        return this.role;
+    }
+
     public SellerUser(User user) {
         super.setUsername(user.getUsername());
         super.setUserid(user.getUserid());

@@ -12,6 +12,11 @@ public class MaintainerUser extends User {
     private String role = "管理员";
 
 
+    @Override
+    public String getRole() {
+        return this.role;
+    }
+
     public MaintainerUser(String username, String password, String userid, Integer userType, JdbcService jdbcService) {
         super(username, password, userid, userType);
         this.jdbcService = jdbcService;

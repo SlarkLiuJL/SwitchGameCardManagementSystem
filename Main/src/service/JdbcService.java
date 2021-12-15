@@ -111,14 +111,14 @@ public class JdbcService {
             String sql = "select * from [user] where username = '" + usn  + "';";
             rs = execSql(sql);
             rs.next();
-            if (rs == null) {
+            if (rs.getString(1) == null) {
                 return false;
             } else {
                 return true;
             }
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return null;
+//            throwables.printStackTrace();
+            return false;
         }
     }
 
